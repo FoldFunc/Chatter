@@ -32,6 +32,9 @@ func main() {
 	server.Get("/api/logout", func(c fiber.Ctx) error {
 		return handlers.Logout(c, store)
 	})
+	server.Post("/api/fetch/name", func(c fiber.Ctx) error {
+		return handlers.FetchName(c, store)
+	})
 
 	log.Println("Server running on port: 42069")
 	log.Fatal(server.Listen(":42069"))

@@ -1,0 +1,3 @@
+#!/bin/bash
+rm ../rust_backend/db/chadder.db
+touch ../rust_backend/db/chadder.db
