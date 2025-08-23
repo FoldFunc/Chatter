@@ -1,0 +1,4 @@
+#!/bin/bash
+curl -c cookies.txt -X POST http://localhost:42069/user/login \
+     -H "Content-Type: application/json" \
+     -d '{"email":"fold.func@gmail.com","password":"pass1"}'

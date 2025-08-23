@@ -8,7 +8,7 @@ pub struct RegisterRequestStruct {
     email: String,
     password: String,
 }
-trait Validate {
+pub trait Validate {
     fn has_empty_fields(&self) -> bool;
 }
 impl Validate for RegisterRequestStruct {
@@ -24,7 +24,7 @@ pub async fn register(
     if payload.has_empty_fields() {
         return (StatusCode::BAD_REQUEST, "Bad request fields").into_response();
     }
-    let result = sqlx::query("INSERT INTO users (username, email, password) VALUES (?, ?, ?)")
+    let result = sqlx::query("INSERT INTO users (username, email, password, loggedin) VALUES (?, ?, ?, false)")
         .bind(payload.username)
         .bind(payload.email)
         .bind(payload.password)

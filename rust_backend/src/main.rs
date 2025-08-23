@@ -1,8 +1,12 @@
 use std::sync::Arc;
-use axum::{routing::post, Router};
+use axum::routing::delete;
+use axum::{routing::post, routing::get, Router};
 mod handlers;
 mod db;
 use handlers::register_handler::register;
+use handlers::login_handler::login;
+use handlers::logout_handler::logout;
+use handlers::delete_user::delete_user;
 #[derive(Clone)]
 struct AppState {
     pool: Arc<sqlx::SqlitePool>,
@@ -15,6 +19,9 @@ async fn main() {
     };
     let server = Router::new()
         .route("/user/register", post(register))
+        .route("/user/login", post(login))
+        .route("/user/logout", get(logout))
+        .route("/user/delete", delete(delete_user))
         .with_state(state);
 
     let listener = tokio::net::TcpListener::bind("127.0.0.1:42069").await.unwrap();
