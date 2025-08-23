@@ -50,7 +50,7 @@ pub async fn logout(
         .finish();
     jar.add(cookie);
 
-    let mut res = StatusCode::OK.into_response();
+    let mut res = (StatusCode::OK, "Logged out").into_response();
     for c in jar.delta() {
         res.headers_mut().append(header::SET_COOKIE, c.to_string().parse().unwrap());
     }

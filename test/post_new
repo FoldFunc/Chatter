@@ -1,0 +1,4 @@
+#!/bin/bash
+curl -b cookies.txt -X POST http://localhost:42069/post/new \
+     -H "Content-Type: application/json" \
+     -d '{"post_name": "This site is nice", "post_body": "This site is so nice that i am gonna use it and not twattwe"}'

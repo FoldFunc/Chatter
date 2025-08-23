@@ -17,5 +17,16 @@ pub async fn db_init() -> SqlitePool{
         .execute(&pool)
         .await
         .unwrap();
+    sqlx::query(
+        "CREATE TABLE IF NOT EXISTS posts(
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            post_owner TEXT NOT NULL,
+            post_name TEXT NOT NULL,
+            post_body TEXT NOT NULL
+        )",
+    )
+        .execute(&pool)
+        .await
+        .unwrap();
     pool
 }

@@ -48,10 +48,10 @@ pub async fn login(
         Some(r) => r,
         None => return (StatusCode::UNAUTHORIZED, "Invalid credentials").into_response(),
     };
-    if let Err(_) = sqlx::query("UPDATE users SET loggedin = true WHERE email = ?")
+    if sqlx::query("UPDATE users SET loggedin = true WHERE email = ?")
         .bind(payload.email.clone())
         .execute(&*state.pool)
-        .await
+        .await.is_err()
     {
         return (StatusCode::INTERNAL_SERVER_ERROR, "Database error").into_response();
     }
@@ -72,7 +72,7 @@ pub async fn login(
         .finish();
     jar.add(cookie);
 
-    let mut res = StatusCode::OK.into_response();
+    let mut res = (StatusCode::OK, "Logged in").into_response();
     for c in jar.delta() {
         res.headers_mut().append(header::SET_COOKIE, c.to_string().parse().unwrap());
     }
