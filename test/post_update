@@ -1,0 +1,4 @@
+#!/bin/bash
+curl -b cookies.txt -X POST http://localhost:42069/post/update \
+     -H "Content-Type: application/json" \
+     -d '{"post_name": "This site is nicer that i thought", "post_body": "Wow it is amazing"}'

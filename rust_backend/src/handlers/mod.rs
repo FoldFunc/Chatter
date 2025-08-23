@@ -3,3 +3,5 @@ pub mod login_handler;
 pub mod logout_handler;
 pub mod delete_user;
 pub mod post_new;
+pub mod post_delete;
+pub mod post_update;

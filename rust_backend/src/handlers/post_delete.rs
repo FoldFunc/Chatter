@@ -1,15 +1,16 @@
 use crate::AppState;
+use sqlx::Row;
 use axum::{
     extract::State,
-    http::{header::COOKIE, header, HeaderMap, StatusCode},
+    http::{header::COOKIE, HeaderMap, StatusCode},
     response::IntoResponse,
 };
-use cookie::{Cookie, CookieJar};
-pub async fn user_delete(
+use cookie::Cookie;
+pub async fn post_delete(
     State(state): State<AppState>,
     headers: HeaderMap,
 ) -> impl IntoResponse {
-    println!("Delete user handler called");
+    println!("Delete post handler called");
     let session_email = if let Some(cookie_header) = headers.get(COOKIE) {
         if let Ok(cookie_str) = cookie_header.to_str() {
             cookie_str
@@ -28,30 +29,24 @@ pub async fn user_delete(
         Some(email) => email,
         None => return (StatusCode::BAD_REQUEST, "No session found").into_response(),
     };
-
-    // Update database
-    if sqlx::query("DELETE FROM users WHERE email = ?")
+    let user_row = match sqlx::query("SELECT username FROM users WHERE email = ?")
         .bind(&session_email)
+        .fetch_optional(&*state.pool)
+        .await
+    {
+        Ok(Some(row)) => row,
+        Ok(None) => return (StatusCode::UNAUTHORIZED, "Invalid credentials").into_response(),
+        Err(_) => return (StatusCode::INTERNAL_SERVER_ERROR, "Database error").into_response(),
+    };
+
+    let user_name: String = user_row.try_get("username").unwrap();
+    // Update database
+    if sqlx::query("DELETE FROM posts WHERE post_owner = ?")
+        .bind(user_name)
         .execute(&*state.pool)
         .await.is_err()
     {
         return (StatusCode::INTERNAL_SERVER_ERROR, "Database error").into_response();
     }
-
-    // Clear the cookie
-    let mut jar = CookieJar::new();
-    let cookie = Cookie::build("session_id", "")
-        .path("/")
-        .max_age(time::Duration::seconds(0)) // expire immediately
-        .http_only(true)
-        .secure(true)
-        .finish();
-    jar.add(cookie);
-
-    let mut res = StatusCode::OK.into_response();
-    for c in jar.delta() {
-        res.headers_mut().append(header::SET_COOKIE, c.to_string().parse().unwrap());
-    }
-
-    res
+    (StatusCode::OK, "Post deleted").into_response()
 }
